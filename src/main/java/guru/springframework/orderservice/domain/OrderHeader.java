@@ -2,6 +2,9 @@ package guru.springframework.orderservice.domain;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+import java.util.Set;
+
 /**
  * Created by jt on 12/5/21.
  */
@@ -53,6 +56,9 @@ public class OrderHeader extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
+    @OneToMany(mappedBy = "orderHeader", cascade = CascadeType.PERSIST)
+    private Set<OrderLine> orderLines;
+
     public String getCustomer() {
         return customer;
     }
@@ -85,30 +91,32 @@ public class OrderHeader extends BaseEntity{
         this.orderStatus = orderStatus;
     }
 
+    public Set<OrderLine> getOrderLines() {
+        return orderLines;
+    }
+
+    public void setOrderLines(Set<OrderLine> orderLines) {
+        this.orderLines = orderLines;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderHeader)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
         OrderHeader that = (OrderHeader) o;
-
-        if (getCustomer() != null ? !getCustomer().equals(that.getCustomer()) : that.getCustomer() != null)
-            return false;
-        if (getShippingAddress() != null ? !getShippingAddress().equals(that.getShippingAddress()) : that.getShippingAddress() != null)
-            return false;
-        if (getBillToAddress() != null ? !getBillToAddress().equals(that.getBillToAddress()) : that.getBillToAddress() != null)
-            return false;
-        return getOrderStatus() == that.getOrderStatus();
+        return Objects.equals(getCustomer(), that.getCustomer()) && Objects.equals(getShippingAddress(), that.getShippingAddress()) && Objects.equals(getBillToAddress(), that.getBillToAddress()) && getOrderStatus() == that.getOrderStatus() && Objects.equals(getOrderLines(), that.getOrderLines());
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (getCustomer() != null ? getCustomer().hashCode() : 0);
-        result = 31 * result + (getShippingAddress() != null ? getShippingAddress().hashCode() : 0);
-        result = 31 * result + (getBillToAddress() != null ? getBillToAddress().hashCode() : 0);
-        result = 31 * result + (getOrderStatus() != null ? getOrderStatus().hashCode() : 0);
+        result = 31 * result + Objects.hashCode(getCustomer());
+        result = 31 * result + Objects.hashCode(getShippingAddress());
+        result = 31 * result + Objects.hashCode(getBillToAddress());
+        result = 31 * result + Objects.hashCode(getOrderStatus());
+        result = 31 * result + Objects.hashCode(getOrderLines());
         return result;
     }
 }

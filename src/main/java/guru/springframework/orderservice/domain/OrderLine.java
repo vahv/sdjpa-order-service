@@ -3,8 +3,9 @@ package guru.springframework.orderservice.domain;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 
-import java.util.Objects;
-
+/**
+ * Created by jt on 12/14/21.
+ */
 @Entity
 public class OrderLine extends BaseEntity {
 
@@ -12,8 +13,9 @@ public class OrderLine extends BaseEntity {
 
     @ManyToOne
     private OrderHeader orderHeader;
-    //Integer orderHeaderId;
 
+    @ManyToOne
+    private Product product;
 
     public Integer getQuantityOrdered() {
         return quantityOrdered;
@@ -31,19 +33,34 @@ public class OrderLine extends BaseEntity {
         this.orderHeader = orderHeader;
     }
 
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderLine orderLine)) return false;
+        if (!(o instanceof OrderLine)) return false;
         if (!super.equals(o)) return false;
 
-        return Objects.equals(getQuantityOrdered(), orderLine.getQuantityOrdered()) && Objects.equals(getOrderHeader(), orderLine.getOrderHeader());
+        OrderLine orderLine = (OrderLine) o;
+
+        if (getQuantityOrdered() != null ? !getQuantityOrdered().equals(orderLine.getQuantityOrdered()) : orderLine.getQuantityOrdered() != null)
+            return false;
+        if (getOrderHeader() != null ? !getOrderHeader().equals(orderLine.getOrderHeader()) : orderLine.getOrderHeader() != null)
+            return false;
+        return getProduct() != null ? getProduct().equals(orderLine.getProduct()) : orderLine.getProduct() == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + Objects.hashCode(getQuantityOrdered());
+        result = 31 * result + (getQuantityOrdered() != null ? getQuantityOrdered().hashCode() : 0);
+        result = 31 * result + (getProduct() != null ? getProduct().hashCode() : 0);
         return result;
     }
 }

@@ -38,7 +38,6 @@ class OrderHeaderRepositoryTest {
     @Test
     void testSaveOrderWithLine() {
         OrderHeader orderHeader = new OrderHeader();
-//        orderHeader.setCustomer();
 
         Customer customer = new Customer();
         customer.setCustomerName("NEW CUSTOMER");
@@ -50,10 +49,11 @@ class OrderHeaderRepositoryTest {
         orderLine.setQuantityOrdered(5);
         orderLine.setProduct(product);
 
-//        orderHeader.setOrderLines(Set.of(orderLine));
-//        orderLine.setOrderHeader(orderHeader);
-
         orderHeader.addOrderLine(orderLine);
+
+        OrderApproval approval = new OrderApproval();
+        approval.setApprovedBy("me");
+        orderHeader.approveOrder(approval);
 
         OrderHeader savedOrder = orderHeaderRepository.save(orderHeader);
 
@@ -70,6 +70,7 @@ class OrderHeaderRepositoryTest {
         assertEquals(fetchedOrder.getOrderLines().size(), 1);
         assertNotNull(fetchedOrder.getCustomer());
         assertEquals(fetchedOrder.getCustomer().getId(), savedCustomer.getId());
+        assertEquals(fetchedOrder.getOrderApproval().getApprovedBy(), "me");
     }
 
     @Test

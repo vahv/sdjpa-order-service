@@ -61,6 +61,9 @@ public class OrderHeader extends BaseEntity{
     @ManyToOne
     private Customer customer;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    private OrderApproval orderApproval;
+
     public void addOrderLine(OrderLine ol) {
         ol.setOrderHeader(this);
         if (orderLines == null) {
@@ -107,6 +110,19 @@ public class OrderHeader extends BaseEntity{
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    public OrderApproval getOrderApproval() {
+        return orderApproval;
+    }
+
+    public void setOrderApproval(OrderApproval orderApproval) {
+        this.orderApproval = orderApproval;
+    }
+
+    public void approveOrder(OrderApproval approval) {
+        approval.setOrder(this);
+        setOrderApproval(approval);
     }
 
     @Override

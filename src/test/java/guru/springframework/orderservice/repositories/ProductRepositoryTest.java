@@ -33,7 +33,7 @@ class ProductRepositoryTest {
 
         Product savedProduct = productRepository.save(product);
 
-        Product fetchedProduct = productRepository.getById(savedProduct.getId());
+        Product fetchedProduct = productRepository.findById(savedProduct.getId()).get();
 
         assertNotNull(fetchedProduct);
         assertNotNull(fetchedProduct.getDescription());

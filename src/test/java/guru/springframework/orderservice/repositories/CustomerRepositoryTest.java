@@ -23,7 +23,9 @@ public class CustomerRepositoryTest {
 
         customerRepository.save(customer);
 
-        Customer fetchedCustomer = customerRepository.findByCustomerName(customer.getCustomerName());
+        Customer fetchedCustomer =
+                customerRepository.findCustomerByCustomerNameIgnoreCase(customer.getCustomerName())
+                        .get();
 
 
         assertNotNull(fetchedCustomer);

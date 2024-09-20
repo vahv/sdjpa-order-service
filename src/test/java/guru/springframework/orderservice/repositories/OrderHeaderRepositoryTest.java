@@ -1,7 +1,6 @@
 package guru.springframework.orderservice.repositories;
 
 import guru.springframework.orderservice.domain.*;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("local")
 @DataJpaTest
@@ -33,32 +35,6 @@ class OrderHeaderRepositoryTest {
         newProduct.setProductStatus(ProductStatus.NEW);
         newProduct.setDescription("test product");
         product = productRepository.saveAndFlush(newProduct);
-    }
-
-    @Test
-    void testDeleteCascade() {
-        OrderHeader orderHeader = new OrderHeader();
-        Customer customer = new Customer();
-        customer.setCustomerName("New Customer");
-        orderHeader.setCustomer(customerRepository.save(customer));
-
-        OrderLine orderLine = new OrderLine();
-        orderLine.setQuantityOrdered(3);
-        orderLine.setProduct(product);
-
-        orderHeader.addOrderLine(orderLine);
-        OrderHeader savedOrder = orderHeaderRepository.saveAndFlush(orderHeader);
-
-        System.out.println("order saved and flushed");
-
-        orderHeaderRepository.deleteById(savedOrder.getId());
-        orderHeaderRepository.flush();
-
-        assertThrows(EntityNotFoundException.class, () -> {
-            OrderHeader fetchedOrder = orderHeaderRepository.getById(savedOrder.getId());
-
-            assertNull(fetchedOrder);
-        });
     }
 
     @Test
@@ -116,4 +92,36 @@ class OrderHeaderRepositoryTest {
         assertNotNull(fetchedOrder.getCreatedDate());
         assertNotNull(fetchedOrder.getLastModifiedDate());
     }
+
+    @Test
+    void testDeleteCascade() {
+
+        OrderHeader orderHeader = new OrderHeader();
+        Customer customer = new Customer();
+        customer.setCustomerName("new Customer");
+        orderHeader.setCustomer(customerRepository.save(customer));
+
+        OrderLine orderLine = new OrderLine();
+        orderLine.setQuantityOrdered(3);
+        orderLine.setProduct(product);
+
+        OrderApproval orderApproval = new OrderApproval();
+        orderApproval.setApprovedBy("me");
+        orderHeader.setOrderApproval(orderApproval);
+
+        orderHeader.addOrderLine(orderLine);
+        OrderHeader savedOrder = orderHeaderRepository.saveAndFlush(orderHeader);
+
+        System.out.println("order saved and flushed");
+
+        orderHeaderRepository.deleteById(savedOrder.getId());
+        orderHeaderRepository.flush();
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            OrderHeader fetchedOrder = orderHeaderRepository.getById(savedOrder.getId());
+
+            assertNull(fetchedOrder);
+        });
+    }
+
 }

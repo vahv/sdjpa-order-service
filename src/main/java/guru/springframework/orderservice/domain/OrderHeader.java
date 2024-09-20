@@ -3,7 +3,6 @@ package guru.springframework.orderservice.domain;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -44,7 +43,10 @@ import java.util.Set;
                 column = @Column(name = "bill_to_zip_code")
         )
 })
-public class OrderHeader extends BaseEntity{
+public class OrderHeader extends BaseEntity {
+
+    @ManyToOne
+    private Customer customer;
 
     @Embedded
     private Address shippingAddress;
@@ -58,18 +60,32 @@ public class OrderHeader extends BaseEntity{
     @OneToMany(mappedBy = "orderHeader", cascade = CascadeType.PERSIST)
     private Set<OrderLine> orderLines;
 
-    @ManyToOne
-    private Customer customer;
-
     @OneToOne(cascade = CascadeType.PERSIST)
     private OrderApproval orderApproval;
 
-    public void addOrderLine(OrderLine ol) {
-        ol.setOrderHeader(this);
+    public OrderApproval getOrderApproval() {
+        return orderApproval;
+    }
+
+    public void setOrderApproval(OrderApproval orderApproval) {
+        this.orderApproval = orderApproval;
+    }
+
+    public void addOrderLine(OrderLine orderLine) {
         if (orderLines == null) {
             orderLines = new HashSet<>();
         }
-        orderLines.add(ol);
+
+        orderLines.add(orderLine);
+        orderLine.setOrderHeader(this);
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public Address getShippingAddress() {
@@ -104,42 +120,32 @@ public class OrderHeader extends BaseEntity{
         this.orderLines = orderLines;
     }
 
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public OrderApproval getOrderApproval() {
-        return orderApproval;
-    }
-
-    public void setOrderApproval(OrderApproval orderApproval) {
-        this.orderApproval = orderApproval;
-    }
-
-    public void approveOrder(OrderApproval approval) {
-        approval.setOrder(this);
-        setOrderApproval(approval);
-    }
-
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderHeader that)) return false;
+        if (!(o instanceof OrderHeader)) return false;
         if (!super.equals(o)) return false;
 
-        return Objects.equals(getShippingAddress(), that.getShippingAddress()) && Objects.equals(getBillToAddress(), that.getBillToAddress()) && getOrderStatus() == that.getOrderStatus();
+        OrderHeader that = (OrderHeader) o;
+
+        if (getCustomer() != null ? !getCustomer().equals(that.getCustomer()) : that.getCustomer() != null)
+            return false;
+        if (getShippingAddress() != null ? !getShippingAddress().equals(that.getShippingAddress()) : that.getShippingAddress() != null)
+            return false;
+        if (getBillToAddress() != null ? !getBillToAddress().equals(that.getBillToAddress()) : that.getBillToAddress() != null)
+            return false;
+        if (getOrderStatus() != that.getOrderStatus()) return false;
+        return getOrderLines() != null ? getOrderLines().equals(that.getOrderLines()) : that.getOrderLines() == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + Objects.hashCode(getShippingAddress());
-        result = 31 * result + Objects.hashCode(getBillToAddress());
-        result = 31 * result + Objects.hashCode(getOrderStatus());
+        result = 31 * result + (getCustomer() != null ? getCustomer().hashCode() : 0);
+        result = 31 * result + (getShippingAddress() != null ? getShippingAddress().hashCode() : 0);
+        result = 31 * result + (getBillToAddress() != null ? getBillToAddress().hashCode() : 0);
+        result = 31 * result + (getOrderStatus() != null ? getOrderStatus().hashCode() : 0);
+        result = 31 * result + (getOrderLines() != null ? getOrderLines().hashCode() : 0);
         return result;
     }
 }

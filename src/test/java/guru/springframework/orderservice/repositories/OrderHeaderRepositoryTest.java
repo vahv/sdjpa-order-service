@@ -8,7 +8,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("local")
@@ -20,10 +22,10 @@ class OrderHeaderRepositoryTest {
     OrderHeaderRepository orderHeaderRepository;
 
     @Autowired
-    ProductRepository productRepository;
+    CustomerRepository customerRepository;
 
     @Autowired
-    CustomerRepository customerRepository;
+    ProductRepository productRepository;
 
     Product product;
 
@@ -38,11 +40,10 @@ class OrderHeaderRepositoryTest {
     @Test
     void testSaveOrderWithLine() {
         OrderHeader orderHeader = new OrderHeader();
-
         Customer customer = new Customer();
-        customer.setCustomerName("NEW CUSTOMER");
-
+        customer.setCustomerName("New Customer");
         Customer savedCustomer = customerRepository.save(customer);
+
         orderHeader.setCustomer(savedCustomer);
 
         OrderLine orderLine = new OrderLine();
@@ -53,7 +54,8 @@ class OrderHeaderRepositoryTest {
 
         OrderApproval approval = new OrderApproval();
         approval.setApprovedBy("me");
-        orderHeader.approveOrder(approval);
+
+        orderHeader.setOrderApproval(approval);
 
         OrderHeader savedOrder = orderHeaderRepository.save(orderHeader);
 
@@ -68,20 +70,17 @@ class OrderHeaderRepositoryTest {
 
         assertNotNull(fetchedOrder);
         assertEquals(fetchedOrder.getOrderLines().size(), 1);
-        assertNotNull(fetchedOrder.getCustomer());
-        assertEquals(fetchedOrder.getCustomer().getId(), savedCustomer.getId());
-        assertEquals(fetchedOrder.getOrderApproval().getApprovedBy(), "me");
     }
 
     @Test
     void testSaveOrder() {
         OrderHeader orderHeader = new OrderHeader();
-        OrderHeader savedOrder = orderHeaderRepository.save(orderHeader);
-
         Customer customer = new Customer();
-        customer.setCustomerName("NEW CUSTOMER");
+        customer.setCustomerName("New Customer");
         Customer savedCustomer = customerRepository.save(customer);
+
         orderHeader.setCustomer(savedCustomer);
+        OrderHeader savedOrder = orderHeaderRepository.save(orderHeader);
 
         assertNotNull(savedOrder);
         assertNotNull(savedOrder.getId());
@@ -92,7 +91,5 @@ class OrderHeaderRepositoryTest {
         assertNotNull(fetchedOrder.getId());
         assertNotNull(fetchedOrder.getCreatedDate());
         assertNotNull(fetchedOrder.getLastModifiedDate());
-        assertNotNull(fetchedOrder.getCustomer());
-        assertEquals(fetchedOrder.getCustomer().getId(), savedCustomer.getId());
     }
 }

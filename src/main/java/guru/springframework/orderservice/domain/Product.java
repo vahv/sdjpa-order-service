@@ -14,17 +14,17 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
-    @ManyToMany
+    @OneToMany(orphanRemoval = true)
     @JoinTable(name = "product_category", joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories;
 
-    public Set<Category> getCategories() {
-        return categories;
-    }
-
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
     }
 
     public String getDescription() {
